@@ -1,0 +1,29 @@
+<!-- html -->
+{% extends "base.html" %}
+{% block content %}Dashboard{% endblock %}
+{%block content%}
+
+<div class="container">
+    <h1>Dashboard</h1>
+    <p>Welcome to the CS Command Center Dashboard!</p>
+
+    {% if loading %}
+        <p>Loading assignments</p>
+
+    {% elif assignments | length == 0 %}
+        <p>No assignments found</p>
+
+    {% else %}
+        {% for assignment in assignments %}
+            <div>
+                <h3>
+                    <a href="{{ assignment.url }}">{{ assignment.name }}</a>
+                </h3>
+                <p>course: {{ assignment.course_name }}</p>
+                <p>due: {{ assignment.due_at }}</p>
+            </div>
+            <hr>
+    {% endfor %}
+{% endif %}
+</div>
+{% endblock %}
