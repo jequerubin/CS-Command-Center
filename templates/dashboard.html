@@ -7,6 +7,26 @@
     <h1>Dashboard</h1>
     <p>Welcome to the CS Command Center Dashboard!</p>
 
+    <form method="GET" action="{{ url_for('dashboard') }}">
+        <label for="course">Filter by course:</label>
+        <select name="course" id="course" onchange="this.form.submit()">
+            <option value="All courses" {% if selected_course == "all courses" %}selected{% endif %}>All courses</option>
+            {% for course in courses %}
+                <option value="{{ course }}" {% if selected_course == course %}selected{% endif %}>{{ course }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Filter</button>
+    </form>
+
+    <form method="GET" action="{{ url_for('dashboard') }}">
+        <input type="text" name="search" placeholder="Search assignments..." 
+        value="{{ selected_query }}">
+
+        <input type="hidden" name="course" value="{{ selected_course }}">
+        <button type="submit">Search</button>
+        <a href="{{ url_for('dashboard', course=selected_course) }}">Clear search</a>
+    </form>
+
     {% if loading %}
         <p>Loading assignments</p>
 
