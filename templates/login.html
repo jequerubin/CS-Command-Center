@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Login — CS Command Center{% endblock %}
+
+{% block content %}
+<div style="text-align: center; margin-top: 60px;">
+    <h2>CS Command Center</h2>
+    <p>Sign in to continue</p>
+    <a href="{{ url_for('github.login') }}">
+        <button type="button">Login with GitHub</button>
+    </a>
+    {% if error %}
+    <p style="color: red; margin-top: 16px;">{{ error }}</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,67 @@
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0 16px;
+    font-family: system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #222;
+    background-color: #f9f9f9;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+header {
+    padding: 24px 0 16px;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 24px;
+}
+
+header h1 {
+    margin: 0 0 8px;
+    font-size: 1.4rem;
+    letter-spacing: 0.05em;
+}
+
+nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 16px;
+}
+
+nav a {
+    text-decoration: none;
+    color: #0066cc;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+main {
+    padding-bottom: 48px;
+}
+
+button {
+    padding: 8px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    border: 1px solid #0066cc;
+    background-color: #0066cc;
+    color: #fff;
+    border-radius: 4px;
+}
+
+button:hover {
+    background-color: #0055aa;
+}
+
+a {
+    color: #0066cc;
+}

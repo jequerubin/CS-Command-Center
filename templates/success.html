@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome — CS Command Center{% endblock %}
+
+{% block content %}
+<div style="text-align: center; margin-top: 60px;">
+    <h2>Successfully logged in as {{ github_username }}</h2>
+    <p>Canvas integration coming soon</p>
+    <a href="{{ url_for('logout') }}">
+        <button type="button">Logout</button>
+    </a>
+</div>
+{% endblock %}
