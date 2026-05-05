@@ -6,6 +6,7 @@ from models import db, User
 from encryption import encrypt_token, decrypt_token
 from services.canvas_api import test_token, fetch_assignments
 from services.github_api import fetch_repositories
+from services.hackernews_api import fetch_top_stories
 
 load_dotenv()
 
@@ -146,6 +147,9 @@ def dev_github():
     token = github.token["access_token"]
     return jsonify(fetch_repositories(token))
 
+@app.route('/dev/news')
+def dev_news():
+    return jsonify(fetch_top_stories())
 
 if __name__ == '__main__':
     app.run(debug=True)
