@@ -125,8 +125,21 @@ def dashboard():
 
     assignments = fetch_assignments(token)
 
+    # Fetch GitHub repositories using stored token
+    github_repos = []
+    username = session.get('github_username')
+    if username:
+        user = User.query.filter_by(github_username=username).first()
+        if user and user.github_token:
+            github_repos = fetch_repositories(decrypt_token(user.github_token))
+
     # TODO: replace with render_template('dashboard.html', assignments=assignments)
-    return "Dashboard placeholder"
+    return render_template(
+        'dashboard.html',
+        assignments=assignments,
+        github_repos=github_repos,
+        loading=False
+    )
 
 
 # --- DEV ROUTES (remove before public deployment) ---

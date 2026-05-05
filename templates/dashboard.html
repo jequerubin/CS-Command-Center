@@ -1,29 +1,178 @@
-<!-- html -->
 {% extends "base.html" %}
-{% block content %}Dashboard{% endblock %}
-{%block content%}
+{% block content %}
 
-<div class="container">
-    <h1>Dashboard</h1>
-    <p>Welcome to the CS Command Center Dashboard!</p>
+<div class="dashboard-grid">
 
-    {% if loading %}
-        <p>Loading assignments</p>
+    <div class="card">
+        <div class="card-header">
+            <h2>Canvas assignments</h2>
+        </div>
+        <div class="card-body">
+            {% if loading %}
+                <p class="not-connected">Loading assignments...</p>
+            {% elif assignments and assignments | length > 0 %}
+                {% for assignment in assignments %}
+                    <div class="assignment-item">
+                        <a href="{{ assignment.html_url }}" target="_blank" rel="noopener noreferrer">{{ assignment.name }}</a>
+                        <span class="meta">{{ assignment.course }} — Due: {{ assignment.due_at }}</span>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="not-connected">No assignments found. <a href="{{ url_for('canvas_setup') }}">Check Canvas setup →</a></p>
+            {% endif %}
+        </div>
+    </div>
 
-    {% elif assignments | length == 0 %}
-        <p>No assignments found</p>
+    <div class="card">
+        <div class="card-header">
+            <h2>GitHub repos</h2>
+        </div>
+        <div class="card-body">
+            {% if github_repos and github_repos | length > 0 %}
+                {% for repo in github_repos %}
+                    <div class="assignment-item">
+                        <a href="{{ repo.html_url }}" target="_blank" rel="noopener noreferrer">
+                            {{ repo.name }}
+                            {% if repo.private %}<span class="meta">(private)</span>{% endif %}
+                        </a>
+                        <span class="meta">
+                            {% if repo.language %}{{ repo.language }} · {% endif %}
+                            Updated: {{ repo.updated_at[:10] }}
+                            {% if repo.description %} · {{ repo.description }}{% endif %}
+                        </span>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="not-connected">No repositories found.</p>
+            {% endif %}
+        </div>
+    </div>
 
-    {% else %}
-        {% for assignment in assignments %}
-            <div>
-                <h3>
-                    <a href="{{ assignment.url }}">{{ assignment.name }}</a>
-                </h3>
-                <p>course: {{ assignment.course_name }}</p>
-                <p>due: {{ assignment.due_at }}</p>
+    
+    <div class="card">
+        <div class="card-header">
+            <h2>Weather</h2>
+        </div>
+        <div class="card-body">
+            <p class="not-connected">coming soon.</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>Tech News</h2>
+        </div>
+        <div class="card-body">
+            <p class="not-connected">coming soon.</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>Pomodoro timer</h2>
+        </div>
+        <div class="card-body pomodoro-body">
+            <div class="pomodoro-mode-btns">
+                <button class="mode-btn active" onclick="setMode('work', event)">Work</button>
+                <button class="mode-btn" onclick="setMode('short', event)">Short Break</button>
+                <button class="mode-btn" onclick="setMode('long', event)">Long Break</button>
             </div>
-            <hr>
-    {% endfor %}
-{% endif %}
+            <div class="pomodoro-display" id="pomodoro-display">25:00</div>
+            <div class="pomodoro-controls">
+                <button onclick="startTimer()">Start</button>
+                <button onclick="pauseTimer()">Pause</button>
+                <button onclick="resetTimer()">Reset</button>
+            </div>
+            <p class="pomodoro-session" id="pomodoro-session">Session 1</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>🔗 Quick Links</h2>
+        </div>
+        <div class="card-body">
+            <div class="link-group">
+                <h3>Academic</h3>
+                <ul class="link-list">
+                    <li><a href="https://canvas.fullerton.edu" target="_blank" rel="noopener noreferrer">Canvas</a></li>
+                    <li><a href="https://my.fullerton.edu" target="_blank" rel="noopener noreferrer">TitanNet</a></li>
+                    <li><a href="https://www.fullerton.edu/ecs/cs/" target="_blank" rel="noopener noreferrer">Cs Department</a></li>
+                    <li><a href="https://catalog.fullerton.edu/content.php?catoid=95&navoid=14116" target="_blank" rel="noopener noreferrer">Academic Calendar</a></li>
+                    <li><a href="https://library.fullerton.edu" target="_blank" rel="noopener noreferrer">CSUF library</a></li>
+                    <li><a href="https://www.ratemyprofessors.com" target="_blank" rel="noopener noreferrer">Rate my Professors</a></li>
+                </ul>
+            </div>
+            <div class="link-group">
+                <h3>Dev Tools</h3>
+                <ul class="link-list">
+                    <li><a href="https://education.github.com" target="_blank" rel="noopener noreferrer">GitHub Education</a></li>
+                    <li><a href="https://stackoverflow.com" target="_blank" rel="noopener noreferrer">Stack overflow</a></li>
+                    <li><a href="https://app.joinhandshake.com" target="_blank" rel="noopener noreferrer">Handshake</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
 </div>
+
+<script> // Python/Flask runs on the server side, it can't do a real-time countdown. So i used JavaScript
+    const MODES = {
+        work:  { minutes: 25 },
+        short: { minutes: 5  },
+        long:  { minutes: 15 },
+    };
+
+    let currentMode = 'work';
+    let timeLeft = 25 * 60;
+    let timerInterval = null;
+    let sessionCount = 1;
+    let running = false;
+
+    function setMode(mode, e) {
+        pauseTimer();
+        currentMode = mode;
+        timeLeft = MODES[mode].minutes * 60;
+        updateDisplay();
+        document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+        e.target.classList.add('active');
+    }
+
+    function startTimer() {
+        if (running) return;
+        running = true;
+        timerInterval = setInterval(() => {
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                running = false;
+                if (currentMode === 'work') {
+                    sessionCount++;
+                    document.getElementById('pomodoro-session').textContent = `Session ${sessionCount}`;
+                }
+                alert(`${currentMode === 'work' ? 'Work' : 'Break'} session complete!`);
+                return;
+            }
+            timeLeft--;
+            updateDisplay();
+        }, 1000);
+    }
+
+    function pauseTimer() {
+        clearInterval(timerInterval);
+        running = false;
+    }
+
+    function resetTimer() {
+        pauseTimer();
+        timeLeft = MODES[currentMode].minutes * 60;
+        updateDisplay();
+    }
+
+    function updateDisplay() {
+        const m = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+        const s = String(timeLeft % 60).padStart(2, '0');
+        document.getElementById('pomodoro-display').textContent = `${m}:${s}`;
+    }
+</script>
+
 {% endblock %}
