@@ -1,7 +1,9 @@
 import requests
 
+CANVAS_BASE_URL = "https://csufullerton.instructure.com"
 
-def test_token(token, canvas_url):
+
+def test_token(token):
     """
     Validates a Canvas API token by hitting the /api/v1/users/self endpoint.
     Returns True if the server responds with HTTP 200, False otherwise.
@@ -9,7 +11,7 @@ def test_token(token, canvas_url):
     try:
         headers = {"Authorization": f"Bearer {token}"}
         response = requests.get(
-            f"{canvas_url}/api/v1/users/self",
+            f"{CANVAS_BASE_URL}/api/v1/users/self",
             headers=headers,
             timeout=10,
         )
@@ -18,7 +20,7 @@ def test_token(token, canvas_url):
         return False
 
 
-def fetch_assignments(token, canvas_url):
+def fetch_assignments(token):
     """
     Fetches all assignments across a user's active Canvas courses.
 
@@ -43,7 +45,7 @@ def fetch_assignments(token, canvas_url):
         headers = {"Authorization": f"Bearer {token}"}
 
         courses_response = requests.get(
-            f"{canvas_url}/api/v1/courses",
+            f"{CANVAS_BASE_URL}/api/v1/courses",
             headers=headers,
             params={"enrollment_state": "active", "per_page": 100},
             timeout=10,
@@ -67,7 +69,7 @@ def fetch_assignments(token, canvas_url):
 
             try:
                 assignments_response = requests.get(
-                    f"{canvas_url}/api/v1/courses/{course_id}/assignments",
+                    f"{CANVAS_BASE_URL}/api/v1/courses/{course_id}/assignments",
                     headers=headers,
                     params={"per_page": 100},
                     timeout=10,
