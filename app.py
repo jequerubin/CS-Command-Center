@@ -1,15 +1,12 @@
-<<<<<<< HEAD
 import os
 from flask import Flask, request, redirect, url_for, session, jsonify, render_template
 from dotenv import load_dotenv
 from flask_dance.contrib.github import make_github_blueprint, github
 from models import db, User
 from encryption import encrypt_token, decrypt_token
-=======
-from flask import Flask, request, redirect, url_for, session,render_template
->>>>>>> a082c016d2d8dfd0c4ddce190b596e28d60f0768
 from services.canvas_api import test_token, fetch_assignments
 from services.github_api import fetch_repositories
+from services.hackernews_api import fetch_top_stories
 
 load_dotenv()
 
@@ -126,7 +123,6 @@ def dashboard():
                 token = decrypt_token(user.canvas_token)
                 session['token'] = token
 
-<<<<<<< HEAD
     if not token:
         return redirect(url_for('canvas_setup'))
 
@@ -166,28 +162,10 @@ def dev_github():
     token = github.token["access_token"]
     return jsonify(fetch_repositories(token))
 
-=======
-    assignments = fetch_assignments(token, canvas_url)
-    assignments = sorted(assignments, key=assignmentsSort)
-    
-    courses = sorted(set(a['course'] for a in assignments))
-    
-    selected_course = request.args.get('course', 'All courses')
-   
-    selected_query = request.args.get('search', '').strip().lower()
-    if selected_query:
-        assignments = [a for a in assignments if selected_query in a['name'].lower()]
-    if selected_course != 'All courses':
-        assignments = [a for a in assignments if a['course'] == selected_course]
-
-    # TODO: replace with render_template('dashboard.html', assignments=assignments)
-    return render_template(
-        'dashboard.html', assignments=assignments,
-        courses = courses,
-        selected_query=selected_query,
-        selected_course=selected_course,
-        loading=False)
->>>>>>> a082c016d2d8dfd0c4ddce190b596e28d60f0768
+  
+@app.route('/dev/news')
+def dev_news():
+    return jsonify(fetch_top_stories())
 
 if __name__ == '__main__':
     app.run(debug=True)
