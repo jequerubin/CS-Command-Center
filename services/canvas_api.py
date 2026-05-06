@@ -1,4 +1,5 @@
 import requests
+from datetime import datetime, timedelta, timezone
 
 CANVAS_BASE_URL = "https://csufullerton.instructure.com"
 
@@ -71,7 +72,11 @@ def fetch_assignments(token):
                 assignments_response = requests.get(
                     f"{CANVAS_BASE_URL}/api/v1/courses/{course_id}/assignments",
                     headers=headers,
-                    params={"per_page": 100},
+                    params={
+                        "per_page": 100,
+                        "include[]": "submission",
+                        "order_by": "due_at",
+                    },
                     timeout=10,
                 )
                 course_assignments = assignments_response.json()
@@ -79,21 +84,36 @@ def fetch_assignments(token):
                 if not isinstance(course_assignments, list):
                     continue
 
+                now = datetime.now(timezone.utc)
+                two_weeks = now + timedelta(days=14)
+
                 for assignment in course_assignments:
                     if not isinstance(assignment, dict):
+                        continue
+
+                    due_at = assignment.get("due_at")
+                    if due_at is None:
+                        continue
+
+                    due_date = datetime.fromisoformat(due_at.replace("Z", "+00:00"))
+                    if due_date < now or due_date > two_weeks:
+                        continue
+
+                    submission = assignment.get("submission") or {}
+                    if submission.get("workflow_state") == "submitted":
                         continue
 
                     assignments.append({
                         "name":     assignment.get("name", "Untitled"),
                         "course":   course_name,
-                        "due_at":   assignment.get("due_at"),
+                        "due_at":   due_at,
                         "html_url": assignment.get("html_url", ""),
                     })
 
             except Exception:
                 continue
 
-        return assignments
+        return sorted(assignments, key=lambda a: a["due_at"])
 
     except Exception:
         return []
