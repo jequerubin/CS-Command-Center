@@ -67,7 +67,7 @@ def success():
         return redirect(url_for('canvas_setup'))
 
     session['token'] = decrypt_token(user.canvas_token)
-    return redirect(url_for('dashboard'))
+    return redirect(url_for('loading'))
 
 
 @app.route('/logout')
@@ -90,7 +90,7 @@ def canvas_setup():
     if username:
         user = User.query.filter_by(github_username=username).first()
         if user and user.canvas_token:
-            return redirect(url_for('dashboard'))
+            return redirect(url_for('loading'))
 
     if request.method == 'POST':
         token = request.form.get('token', '').strip()
@@ -102,7 +102,7 @@ def canvas_setup():
                 user.canvas_token = encrypt_token(token)
                 db.session.commit()
             session['token'] = token
-            return redirect(url_for('dashboard'))
+            return redirect(url_for('loading'))
 
         return render_template('canvas_setup.html', error="Invalid Canvas token. Please check and try again.")
 
@@ -110,6 +110,13 @@ def canvas_setup():
 
 def assignmentsSort(assignment):
     return (assignment['due_at'] is None, assignment['due_at'])
+
+@app.route('/loading')
+def loading():
+    username = session.get('github_username')
+    if not username:
+        return redirect(url_for('login'))
+    return render_template('loading.html')
 
 @app.route('/dashboard')
 def dashboard():
@@ -136,12 +143,14 @@ def dashboard():
         if user and user.github_token:
             github_repos = fetch_repositories(decrypt_token(user.github_token))
 
-    # TODO: replace with render_template('dashboard.html', assignments=assignments)
+    news_stories = fetch_top_stories(limit=15)[:5]
+
     return render_template(
         'dashboard.html',
         assignments=assignments,
         github_repos=github_repos,
-        loading=False
+        loading=False,
+        news_stories=news_stories
     )
 
 

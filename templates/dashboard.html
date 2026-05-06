@@ -65,7 +65,16 @@
             <h2>Tech News</h2>
         </div>
         <div class="card-body">
-            <p class="not-connected">coming soon.</p>
+            {% if news_stories and news_stories | length > 0 %}
+                {% for story in news_stories %}
+                    <div class="assignment-item">
+                        <a href="{{ story.url }}" target="_blank" rel="noopener noreferrer">{{ story.title }}</a>
+                        {% if story.score %}<span class="meta">{{ story.score }} points</span>{% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="not-connected">No stories available.</p>
+            {% endif %}
         </div>
     </div>
 
@@ -175,6 +184,7 @@
         const s = String(timeLeft % 60).padStart(2, '0');
         document.getElementById('pomodoro-display').textContent = `${m}:${s}`;
     }
+
 </script>
 
 {% endblock %}

@@ -42,10 +42,10 @@ def fetch_top_stories(limit=5):
         
         stories = []
         
-        for story_id in story_ids:
+        for story_id in story_ids[:limit]:
             try:
                 item_response = requests.get(
-                    f"hacker-news.firebaseio.com/v0/item/{story_id}.json",
+                    f"https://hacker-news.firebaseio.com/v0/item/{story_id}.json",
                     timeout=10
                 )
                 item = item_response.json()
@@ -59,7 +59,7 @@ def fetch_top_stories(limit=5):
             except Exception:
                 continue
 
-        return stories
+        return sorted(stories, key=lambda s: s["score"], reverse=True)
     
     except Exception:
         return []
