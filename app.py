@@ -108,6 +108,8 @@ def canvas_setup():
 
     return render_template('canvas_setup.html')
 
+def assignmentsSort(assignment):
+    return (assignment['due_at'] is None, assignment['due_at'])
 
 @app.route('/dashboard')
 def dashboard():
@@ -126,8 +128,21 @@ def dashboard():
 
     assignments = fetch_assignments(token)
 
+    # Fetch GitHub repositories using stored token
+    github_repos = []
+    username = session.get('github_username')
+    if username:
+        user = User.query.filter_by(github_username=username).first()
+        if user and user.github_token:
+            github_repos = fetch_repositories(decrypt_token(user.github_token))
+
     # TODO: replace with render_template('dashboard.html', assignments=assignments)
-    return "Dashboard placeholder"
+    return render_template(
+        'dashboard.html',
+        assignments=assignments,
+        github_repos=github_repos,
+        loading=False
+    )
 
 
 # --- DEV ROUTES (remove before public deployment) ---
@@ -147,6 +162,7 @@ def dev_github():
     token = github.token["access_token"]
     return jsonify(fetch_repositories(token))
 
+  
 @app.route('/dev/news')
 def dev_news():
     return jsonify(fetch_top_stories())
