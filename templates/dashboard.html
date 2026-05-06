@@ -1,128 +1,143 @@
 {% extends "base.html" %}
+{% block title %}Dashboard — TuskCS{% endblock %}
 {% block content %}
 
-<div class="container">
-    <h1>Dashboard</h1>
-    <p>Welcome to the CS Command Center Dashboard!</p>
+<div class="dashboard-grid">
 
+    <!-- Canvas Assignments — full width -->
     <div class="card">
         <div class="card-header">
-            <h2>Canvas assignments</h2>
+            <h2>&#x1F4CB; Canvas Assignments</h2>
+            <span class="badge">Next 2 Weeks</span>
         </div>
-        <div class="card-body">
-            {% if loading %}
-                <p class="not-connected">Loading assignments...</p>
-            {% elif assignments and assignments | length > 0 %}
-                {% for assignment in assignments %}
-                    <div class="assignment-item">
-                        <a href="{{ assignment.html_url }}" target="_blank" rel="noopener noreferrer">{{ assignment.name }}</a>
-                        <span class="meta">{{ assignment.course }} — Due: {{ assignment.due_at }}</span>
-                    </div>
-                {% endfor %}
-            {% else %}
-                <p class="not-connected">No assignments found. <a href="{{ url_for('canvas_setup') }}">Check Canvas setup →</a></p>
-            {% endif %}
-        </div>
+        <p class="card-subtitle">Upcoming assignments, quizzes, and exams from your Canvas courses</p>
+        {% if loading %}
+            <p class="not-connected">Loading assignments...</p>
+        {% elif assignments and assignments | length > 0 %}
+            {% for assignment in assignments %}
+                <div class="sub-card">
+                    <a href="{{ assignment.html_url }}" target="_blank" rel="noopener noreferrer"><strong>{{ assignment.name }}</strong></a>
+                    <p class="meta">{{ assignment.course }}</p>
+                    <p class="meta">&#x1F4C5; {{ assignment.due_at }}</p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="not-connected">No assignments found. <a href="{{ url_for('canvas_setup') }}">Check Canvas setup &rarr;</a></p>
+        {% endif %}
     </div>
 
-    <div class="card">
-        <div class="card-header">
-            <h2>GitHub repos</h2>
-        </div>
-        <div class="card-body">
+    <!-- GitHub Repos + Quick Links — side by side -->
+    <div class="two-col-row">
+        <div class="card">
+            <div class="card-header">
+                <h2>&#x2446; Recent GitHub Repositories</h2>
+            </div>
+            <p class="card-subtitle">Your most recently updated repositories</p>
             {% if github_repos and github_repos | length > 0 %}
                 {% for repo in github_repos %}
-                    <div class="assignment-item">
-                        <a href="{{ repo.html_url }}" target="_blank" rel="noopener noreferrer">
-                            {{ repo.name }}
-                            {% if repo.private %}<span class="meta">(private)</span>{% endif %}
-                        </a>
-                        <span class="meta">
-                            {% if repo.language %}{{ repo.language }} · {% endif %}
+                    <div class="sub-card">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <strong>{{ repo.name }}</strong>
+                            <a href="{{ repo.html_url }}" target="_blank" rel="noopener noreferrer" class="repo-link">&#x2197;</a>
+                        </div>
+                        {% if repo.private %}<span class="private-badge">(private)</span>{% endif %}
+                        {% if repo.description %}<p class="meta" style="margin-top:4px;">{{ repo.description }}</p>{% endif %}
+                        <p class="meta" style="margin-top:6px;">
+                            {% if repo.language %}
+                                <span class="lang-dot {% if repo.language == 'Python' %}lang-python{% elif repo.language == 'JavaScript' %}lang-javascript{% elif repo.language == 'Java' %}lang-java{% else %}lang-default{% endif %}">&#x25CF;</span>
+                                {{ repo.language }} &middot;
+                            {% endif %}
                             Updated: {{ repo.updated_at[:10] }}
-                            {% if repo.description %} · {{ repo.description }}{% endif %}
-                        </span>
+                        </p>
                     </div>
                 {% endfor %}
             {% else %}
                 <p class="not-connected">No repositories found.</p>
             {% endif %}
         </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>&#x1F517; Quick Links &amp; Resources</h2>
+            </div>
+            <p class="card-subtitle">Essential CS department and university resources</p>
+            <div class="quick-link-item">
+                <a href="https://my.fullerton.edu" target="_blank" rel="noopener noreferrer">&#x1F393; Student Portal</a>
+            </div>
+            <div class="quick-link-item">
+                <a href="https://www.fullerton.edu/ecs/cs/" target="_blank" rel="noopener noreferrer">&#x1F4BB; CS Department</a>
+            </div>
+            <div class="quick-link-item">
+                <a href="https://app.joinhandshake.com" target="_blank" rel="noopener noreferrer">&#x1F3AF; Career Center</a>
+            </div>
+            <div class="quick-link-item" style="border-bottom: none;">
+                <a href="https://library.fullerton.edu" target="_blank" rel="noopener noreferrer">&#x1F4D6; Tutoring Services</a>
+            </div>
+        </div>
     </div>
 
-    
-    <div class="card">
-        <div class="card-header">
-            <h2>Weather</h2>
-        </div>
-        <div class="card-body">
-            <p class="not-connected">coming soon.</p>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="card-header">
-            <h2>Tech News</h2>
-        </div>
-        <div class="card-body">
-            {% if news_stories and news_stories | length > 0 %}
-                {% for story in news_stories %}
-                    <div class="assignment-item">
-                        <a href="{{ story.url }}" target="_blank" rel="noopener noreferrer">{{ story.title }}</a>
-                        {% if story.score %}<span class="meta">{{ story.score }} points</span>{% endif %}
+    <!-- Weather + Pomodoro — side by side -->
+    <div class="two-col-even">
+        <div class="card">
+            <div class="card-header">
+                <h2>&#x1F324; Weather</h2>
+            </div>
+            <p class="card-subtitle">Current conditions in Fullerton</p>
+            {% if weather %}
+                <div class="weather-display">
+                    <div class="weather-main">
+                        <span class="weather-temp">{{ weather.temperature }}°F</span>
+                        <span class="weather-conditions">{{ weather.conditions }}</span>
                     </div>
-                {% endfor %}
+                    <div class="weather-details">
+                        <p><strong>{{ weather.city }}</strong> &mdash; {{ weather.description }}</p>
+                        <p class="meta">Humidity: {{ weather.humidity }}% &nbsp;&bull;&nbsp; Wind: {{ weather.wind_speed }} mph</p>
+                    </div>
+                </div>
             {% else %}
-                <p class="not-connected">No stories available.</p>
+                <p class="not-connected">Weather data unavailable.</p>
             {% endif %}
         </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>&#x23F1; Pomodoro Timer</h2>
+            </div>
+            <div class="pomodoro-body">
+                <div class="pomodoro-mode-btns">
+                    <button class="mode-btn active" onclick="setMode('work', event)">Work</button>
+                    <button class="mode-btn" onclick="setMode('short', event)">Short Break</button>
+                    <button class="mode-btn" onclick="setMode('long', event)">Long Break</button>
+                </div>
+                <div class="pomodoro-display" id="pomodoro-display">25:00</div>
+                <div class="pomodoro-controls">
+                    <button onclick="startTimer()">Start</button>
+                    <button onclick="pauseTimer()">Pause</button>
+                    <button onclick="resetTimer()">Reset</button>
+                </div>
+                <p class="pomodoro-session" id="pomodoro-session">Session 1</p>
+            </div>
+        </div>
     </div>
 
+    <!-- Tech News — full width -->
     <div class="card">
         <div class="card-header">
-            <h2>Pomodoro timer</h2>
+            <h2>&#x1F4F0; Software Engineering &amp; Tech News</h2>
         </div>
-        <div class="card-body pomodoro-body">
-            <div class="pomodoro-mode-btns">
-                <button class="mode-btn active" onclick="setMode('work', event)">Work</button>
-                <button class="mode-btn" onclick="setMode('short', event)">Short Break</button>
-                <button class="mode-btn" onclick="setMode('long', event)">Long Break</button>
+        <p class="card-subtitle">Latest industry news and updates</p>
+        {% if news_stories and news_stories | length > 0 %}
+            <div class="news-grid">
+                {% for story in news_stories %}
+                    <div class="sub-card">
+                        <a href="{{ story.url }}" target="_blank" rel="noopener noreferrer"><strong>{{ story.title }}</strong></a>
+                        <p class="meta" style="margin-top:6px;">{{ story.score }} points</p>
+                    </div>
+                {% endfor %}
             </div>
-            <div class="pomodoro-display" id="pomodoro-display">25:00</div>
-            <div class="pomodoro-controls">
-                <button onclick="startTimer()">Start</button>
-                <button onclick="pauseTimer()">Pause</button>
-                <button onclick="resetTimer()">Reset</button>
-            </div>
-            <p class="pomodoro-session" id="pomodoro-session">Session 1</p>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="card-header">
-            <h2>🔗 Quick Links</h2>
-        </div>
-        <div class="card-body">
-            <div class="link-group">
-                <h3>Academic</h3>
-                <ul class="link-list">
-                    <li><a href="https://canvas.fullerton.edu" target="_blank" rel="noopener noreferrer">Canvas</a></li>
-                    <li><a href="https://my.fullerton.edu" target="_blank" rel="noopener noreferrer">TitanNet</a></li>
-                    <li><a href="https://www.fullerton.edu/ecs/cs/" target="_blank" rel="noopener noreferrer">Cs Department</a></li>
-                    <li><a href="https://catalog.fullerton.edu/content.php?catoid=95&navoid=14116" target="_blank" rel="noopener noreferrer">Academic Calendar</a></li>
-                    <li><a href="https://library.fullerton.edu" target="_blank" rel="noopener noreferrer">CSUF library</a></li>
-                    <li><a href="https://www.ratemyprofessors.com" target="_blank" rel="noopener noreferrer">Rate my Professors</a></li>
-                </ul>
-            </div>
-            <div class="link-group">
-                <h3>Dev Tools</h3>
-                <ul class="link-list">
-                    <li><a href="https://education.github.com" target="_blank" rel="noopener noreferrer">GitHub Education</a></li>
-                    <li><a href="https://stackoverflow.com" target="_blank" rel="noopener noreferrer">Stack overflow</a></li>
-                    <li><a href="https://app.joinhandshake.com" target="_blank" rel="noopener noreferrer">Handshake</a></li>
-                </ul>
-            </div>
-        </div>
+        {% else %}
+            <p class="not-connected">No stories available.</p>
+        {% endif %}
     </div>
 
 </div>
