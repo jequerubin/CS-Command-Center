@@ -1,29 +1,30 @@
 {% extends "base.html" %}
 
-{% block title %}Canvas Setup — CS Command Center{% endblock %}
+{% block title %}Canvas Setup — TuskCS{% endblock %}
 
 {% block content %}
-<h2>Connect Your Canvas Account</h2>
+<div class="setup-card">
+    <h2>Connect Your Canvas Account</h2>
+    <p style="color: #6b7280; margin: 12px 0 20px;">To display your assignments, TuskCS needs a Canvas API token. Follow these steps to generate one:</p>
 
-<p>To display your assignments, CS Command Center needs a Canvas API token. Follow these steps to generate one:</p>
+    <ol class="setup-steps">
+        <li>Go to <a href="https://canvas.fullerton.edu" target="_blank" rel="noopener">canvas.fullerton.edu</a> and log in.</li>
+        <li>Click your <strong>Account</strong> icon in the top-left corner, then select <strong>Settings</strong>.</li>
+        <li>Scroll down to the <strong>Approved Integrations</strong> section.</li>
+        <li>Click <strong>+ New Access Token</strong>.</li>
+        <li>Enter a purpose (e.g., <em>TuskCS</em>) and click <strong>Generate Token</strong>.</li>
+        <li>Copy the token shown — it will only be displayed once.</li>
+        <li>Paste it into the field below and click <strong>Save Token</strong>.</li>
+    </ol>
 
-<ol>
-    <li>Go to <a href="https://canvas.fullerton.edu" target="_blank" rel="noopener">canvas.fullerton.edu</a> and log in.</li>
-    <li>Click your <strong>Account</strong> icon in the top-left corner, then select <strong>Settings</strong>.</li>
-    <li>Scroll down to the <strong>Approved Integrations</strong> section.</li>
-    <li>Click <strong>+ New Access Token</strong>.</li>
-    <li>Enter a purpose (e.g., <em>CS Command Center</em>) and click <strong>Generate Token</strong>.</li>
-    <li>Copy the token shown — it will only be displayed once.</li>
-    <li>Paste it into the field below and click <strong>Save Token</strong>.</li>
-</ol>
+    {% if error %}
+    <p class="setup-error">{{ error }}</p>
+    {% endif %}
 
-{% if error %}
-<p style="color: red;">{{ error }}</p>
-{% endif %}
-
-<form method="POST" action="{{ url_for('canvas_setup') }}">
-    <label for="token">Canvas API Token:</label><br>
-    <input type="text" id="token" name="token" placeholder="Paste your Canvas token here" required style="width: 400px;"><br><br>
-    <button type="submit">Save Token</button>
-</form>
+    <form method="POST" action="{{ url_for('canvas_setup') }}">
+        <label class="setup-label" for="token">Canvas API Token</label>
+        <input type="text" id="token" name="token" placeholder="Paste your Canvas token here" required class="setup-input">
+        <button type="submit" class="setup-btn">Save Token</button>
+    </form>
+</div>
 {% endblock %}

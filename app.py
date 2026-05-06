@@ -144,14 +144,16 @@ def dashboard():
         if user and user.github_token:
             github_repos = fetch_repositories(decrypt_token(user.github_token))
 
-    news_stories = fetch_top_stories(limit=15)[:5]
+    news_stories = fetch_top_stories(limit=18)[:6]
+    weather = fetch_weather()
 
     return render_template(
         'dashboard.html',
         assignments=assignments,
         github_repos=github_repos,
         loading=False,
-        news_stories=news_stories
+        news_stories=news_stories,
+        weather=weather
     )
 
 
@@ -178,11 +180,9 @@ def dev_news():
     return jsonify(fetch_top_stories())
 
 
-@app.route("/dev/weather")
+@app.route('/dev/weather')
 def dev_weather():
-    token = os.environ.get("WEATHER_API_KEY")
-    data = fetch_weather(token)
-    return data
+    return jsonify(fetch_weather())
 
 
 if __name__ == '__main__':
