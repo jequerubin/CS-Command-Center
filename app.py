@@ -7,6 +7,7 @@ from encryption import encrypt_token, decrypt_token
 from services.canvas_api import test_token, fetch_assignments
 from services.github_api import fetch_repositories
 from services.hackernews_api import fetch_top_stories
+from services.weather_api import fetch_weather
 
 load_dotenv()
 
@@ -166,6 +167,14 @@ def dev_github():
 @app.route('/dev/news')
 def dev_news():
     return jsonify(fetch_top_stories())
+
+
+@app.route("/dev/weather")
+def dev_weather():
+    token = os.environ.get("WEATHER_API_KEY")
+    data = fetch_weather(token)
+    return data
+
 
 if __name__ == '__main__':
     app.run(debug=True)
